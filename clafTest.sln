@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clafTest", "clafTest\clafTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claf", "Claf\Claf.csproj", "{66CFCE9E-B890-4A43-853D-F95291BE83AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuntimeDocs", "RuntimeDocs\RuntimeDocs.csproj", "{B29DA200-C44D-4059-960D-D2465BCC0B28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,16 @@ Global
 		{66CFCE9E-B890-4A43-853D-F95291BE83AB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{66CFCE9E-B890-4A43-853D-F95291BE83AB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{66CFCE9E-B890-4A43-853D-F95291BE83AB}.Release|x86.ActiveCfg = Release|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B29DA200-C44D-4059-960D-D2465BCC0B28}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

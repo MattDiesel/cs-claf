@@ -12,7 +12,6 @@ namespace clafTest
         {
             MyCmdLineProgram m = new MyCmdLineProgram( );
 
-            m.Prompt = ">>> ";
             m.Run( );
         }
     }
@@ -23,6 +22,15 @@ namespace clafTest
         public void foo( int x )
         {
             Console.WriteLine( x * 2 );
+        }
+
+        /// <summary>
+        /// Testing 123
+        /// </summary>
+        [ClafOpt("Hello, World!")]
+        public void test()
+        {
+            this.getSummary( "test" );
         }
     }
 }
