@@ -18,7 +18,10 @@ namespace clafTest
 
     class MyCmdLineProgram : ClafProgram
     {
-        [ClafOpt( "This is a test" )]
+        /// <summary>
+        /// This is a test
+        /// </summary>
+        /// <param name="x">Something</param>
         public void foo( int x )
         {
             Console.WriteLine( x * 2 );
@@ -27,7 +30,6 @@ namespace clafTest
         /// <summary>
         /// Testing 123
         /// </summary>
-        [ClafOpt("Hello, World!")]
         public void test()
         {
             this.getSummary( "test" );

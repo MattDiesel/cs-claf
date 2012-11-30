@@ -7,61 +7,6 @@ using System.IO;
 
 namespace Claf
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public sealed class ClafOpt : Attribute
-    {
-        private Dictionary<string, string> paramHelp;
-        public Dictionary<string, string> ParamHelp
-        {
-            get
-            {
-                return paramHelp;
-            }
-            set
-            {
-                paramHelp = value;
-            }
-        }
-
-        private string descrString;
-        public string Description
-        {
-            get
-            {
-                return descrString;
-            }
-            set
-            {
-                descrString = value;
-            }
-        }
-
-        private string helpString;
-        public string HelpString
-        {
-            get
-            {
-                return helpString;
-            }
-            set
-            {
-                helpString = value;
-            }
-        }
-
-        public ClafOpt( string descr )
-            : this(descr, "")
-        {
-        }
-
-        public ClafOpt( string descr, string helpstr )
-        {
-            this.Description = descr;
-            this.HelpString = helpstr;
-            this.ParamHelp = new Dictionary<string, string>( );
-        }
-    }
-
     /// <summary>
     /// A function that converts a string to another type.
     /// </summary>
@@ -95,12 +40,25 @@ namespace Claf
             this.helpString = "";
             this.Prompt = prompt;
 
-            this.docs = new RuntimeDocs(this.GetType());
+            this.docs = new RuntimeDocs(this.GetType(), typeof(ClafProgram));
         }
 
         private RuntimeDocs docs;
 
-        public void getSummary(string method)
+        /// <summary>
+        /// Gets the single line summary of a function.
+        /// </summary>
+        /// <param name="m">The MethodInfo for the method.</param>
+        protected void getSummary(MethodInfo m)
+        {
+            this.getSummary(m.Name);
+        }
+        
+        /// <summary>
+        /// Gets the single line summary of a function.
+        /// </summary>
+        /// <param name="method">The name of the method.</param>
+        protected void getSummary(string method)
         {
             Console.WriteLine(this.docs[method].Element("summary").Value.Trim());
         }
@@ -113,7 +71,7 @@ namespace Claf
         /// <summary>
         /// Adds a conversion function for a type that does not handle casts from strings.
         /// </summary>
-        public void SetCastHandler(Type T, ConvertToHandler handler)
+        protected void SetCastHandler(Type T, ConvertToHandler handler)
         {
             castHandlers[ T ] = handler;
         }
@@ -139,7 +97,7 @@ namespace Claf
         /// <remarks>
         /// For example an IDLE like processor would use ">>> ".
         /// </remarks>
-        public string Prompt
+        protected string Prompt
         {
             get
             {
@@ -178,15 +136,9 @@ namespace Claf
         {
             string[ ] parts = s.Split( ' ' );
 
-            MethodInfo m = null;
-            ClafOpt a = null;
+            MethodInfo m = this.GetType( ).GetMethod( parts[ 0 ] );
 
-            try
-            {
-                m = this.GetType( ).GetMethod( parts[ 0 ] );
-                a = ( ClafOpt )Attribute.GetCustomAttribute( m, typeof( ClafOpt ), false );
-            }
-            catch
+            if (!IsClafVisible(m))
             {
                 Console.WriteLine( "No command '{0}' exists! Try `help`.", parts[ 0 ] );
                 return;
@@ -301,16 +253,7 @@ namespace Claf
         /// </summary>
         private string getDescr(MethodInfo method)
         {
-            try
-            {
-                ClafOpt a = ( ClafOpt )Attribute.GetCustomAttribute( method, typeof( ClafOpt ), false );
-
-                return a.Description;
-            }
-            catch
-            {
-                return "";
-            }
+            return this.docs[method.Name].Element("summary").Value.Trim();
         }
 
 
@@ -326,28 +269,7 @@ namespace Claf
 
         private string getParamHelp(MethodInfo method)
         {
-            ClafOpt a;
-
-            try
-            {
-                a = ( ClafOpt )Attribute.GetCustomAttribute( method, typeof( ClafOpt ), false );
-            }
-            catch
-            {
-                return "";
-            }
-
-            StringBuilder b = new StringBuilder( );
-
-            foreach ( ParameterInfo i in method.GetParameters() )
-            {
-                if ( a.ParamHelp.ContainsKey( i.Name ) )
-                    b.AppendFormat( "\t{0}\t\t- {1}\n", i.Name, a.ParamHelp[ i.Name ] );
-                else
-                    b.AppendFormat( "\t{0}\t\t- \n", i.Name );
-            }
-
-            return b.ToString( );
+            return "";
         }
 
         /// <summary>
@@ -368,16 +290,7 @@ namespace Claf
         /// </summary>
         private string getLongHelp(MethodInfo method)
         {
-            try
-            {
-                ClafOpt a = ( ClafOpt )Attribute.GetCustomAttribute( method, typeof( ClafOpt ), false );
-
-                return a.HelpString;
-            }
-            catch
-            {
-                return "";
-            }
+            return this.docs["remarks"].Value;
         }
 
         /// <summary>
@@ -409,8 +322,7 @@ namespace Claf
         /// <summary>
         /// Prints the help message, optionally for a specific function.
         /// </summary>
-        [ClafOpt( "Displays a help message." )]
-        public void help( string func = "" )
+        public virtual void help( string func = "" )
         {
             if ( func != "" )
             {
@@ -442,6 +354,9 @@ namespace Claf
 
             foreach ( MethodInfo m in this.GetType( ).GetMethods( BindingFlags.Public | BindingFlags.Instance ) )
             {
+                if (!IsClafVisible(m))
+                    continue;
+
                 d = this.getDescr( m );
 
                 if ( d != "" )
@@ -451,16 +366,26 @@ namespace Claf
             this.helpString = b.ToString( );
         }
 
-        [ClafOpt( "Displays usage information",
-            "The usage information is the command name followed by the arguments that can be " +
-            "given to it. Optional arguments are enclosed in square brackets, for example:\n\n\t>>> usage help\n\nWould print:\n\n\thelp [func]")]
-        public void usage( string func )
+        private bool IsClafVisible(MethodInfo m)
+        {
+            return (m != null && (m.IsVirtual || (m.IsPublic && !this.GetType().GetMethods().Contains(m) && !typeof(object).GetMethods().Contains(m))));
+        }
+
+        ///<summary>Displays usage information</summary>
+        ///<remarks>
+        ///The usage information is the command name followed by the arguments that can be
+        ///given to it. Optional arguments are enclosed in square brackets, for example:
+        ///>>> usage help
+        ///Would print:
+        ///>>> help [func]
+        ///</remarks>
+        public virtual void usage( string func )
         {
             Console.WriteLine( this.getUsage( func ) );
         }
 
-        [ClafOpt("Exits the program")]
-        public void exit()
+        ///<summary>Exits the program</summary>
+        public virtual void exit()
         {
             this.alive = false;
         }
